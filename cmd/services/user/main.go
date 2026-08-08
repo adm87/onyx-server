@@ -3,11 +3,22 @@ package main
 import (
 	"log"
 
+	"github.com/adm87/onyx-server/internal/config"
+	"github.com/adm87/onyx-server/internal/logging"
 	"github.com/adm87/onyx-server/internal/services/user"
+	"go.uber.org/zap"
 )
 
 func main() {
-	if err := user.Run(); err != nil {
-		log.Fatalf("exited with error: %v", err)
+	cfg, err := config.Load()
+	if err != nil {
+		log.Fatalf("failed to load config: %v", err)
+	}
+	lgr, err := logging.New(&cfg.Logger)
+	if err != nil {
+		log.Fatalf("failed to create logger: %v", err)
+	}
+	if err := user.Run(cfg, lgr); err != nil {
+		lgr.Fatal("exiting with error", zap.Error(err))
 	}
 }

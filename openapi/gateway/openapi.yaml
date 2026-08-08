@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: Onyx Gateway API
+  version: 0.1.0
+
+paths:
+  /v1/auth/signup:
+    post:
+      operationId: signup
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+      responses:
+        '204':
+          description: No content
+
+  /v1/auth/login:
+    post:
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '204':
+          description: No content
+
+  /v1/auth/refresh:
+    post:
+      operationId: refreshToken
+      responses:
+        '204':
+          description: No content
+
+  /v1/users/{id}:
+    get:
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+    patch:
+      operationId: updateUser
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: No content
+
+  /healthz:
+    get:
+      operationId: healthz
+      responses:
+        '200':
+          description: OK
+
+components:
+  schemas:
+    SignupRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string

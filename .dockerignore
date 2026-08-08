@@ -7,3 +7,5 @@
 !internal/*
 !proto/
 !proto/*
+!scripts/
+!scripts/*

@@ -37,19 +37,25 @@ services:
         condition: service_healthy
     volumes:
       - ./migrations/users:/migrations/users
-      
+
   auth-service:
     build:
       context: .
       dockerfile: ./build/services/Dockerfile
       args:
         SERVICE: auth
-        GO_VERSION: ${GO_VERSION:-1.26.5}
     container_name: onyx-auth-service
     env_file:
       - .env
+    environment:
+      - LOGGER_PREFIX=auth-service
     ports:
-      - "50051:50051"
+      - "${SERVICES_AUTH_GRPC_PORT}:${SERVICES_AUTH_GRPC_PORT}"
+    healthcheck:
+      test: ["CMD", "/grpc_health_probe", "-addr=:${SERVICES_AUTH_GRPC_PORT}"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
     depends_on:
       postgres:
         condition: service_healthy
@@ -62,12 +68,18 @@ services:
       dockerfile: ./build/services/Dockerfile
       args:
         SERVICE: user
-        GO_VERSION: ${GO_VERSION:-1.26.5}
     container_name: onyx-user-service
     env_file:
       - .env
+    environment:
+      - LOGGER_PREFIX=user-service
     ports:
-      - "50052:50052"
+      - "${SERVICES_USER_GRPC_PORT}:${SERVICES_USER_GRPC_PORT}"
+    healthcheck:
+      test: ["CMD", "/grpc_health_probe", "-addr=:${SERVICES_USER_GRPC_PORT}"]
+      interval: 2s
+      timeout: 3s
+      retries: 10
     depends_on:
       postgres:
         condition: service_healthy
@@ -82,10 +94,12 @@ services:
     env_file:
       - .env
     ports:
-      - "8080:8080"
+      - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
     depends_on:
-      - auth-service
-      - user-service
+      auth-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
 
 volumes:
   pgdata:

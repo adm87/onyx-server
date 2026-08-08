@@ -7,7 +7,7 @@ define SERVICE_template
 .PHONY: up-$(1)-service
 up-$(1)-service:
 	@echo "Starting $(1) service..."
-	docker compose up -d --build $(1)-service
+	docker compose up --build $(1)-service
 
 .PHONY: down-$(1)-service
 down-$(1)-service:
@@ -20,7 +20,7 @@ $(foreach svc,$(SERVICES),$(eval $(call SERVICE_template,$(svc))))
 .PHONY: up-postgres
 up-postgres:
 	@echo "Starting Postgres..."
-	docker compose up -d postgres
+	docker compose up postgres
 
 .PHONY: down-postgres
 down-postgres:
@@ -30,7 +30,7 @@ down-postgres:
 .PHONY: up-gateway
 up-gateway:
 	@echo "Starting Onyx gateway..."
-	docker compose up -d --build gateway
+	docker compose up --build gateway
 
 .PHONY: down-gateway
 down-gateway:
@@ -39,7 +39,7 @@ down-gateway:
 
 .PHONY: up down
 up:
-	docker compose up -d --build
+	docker compose up --build
 
 down:
 	docker compose down
@@ -52,3 +52,7 @@ proto:
 		--proto_path=$(PROTO_DIR) \
 		$(PROTO_DIR)/auth/v1/auth.proto \
 		$(PROTO_DIR)/user/v1/user.proto
+
+.PHONY: openapi
+openapi:
+	go generate ./openapi

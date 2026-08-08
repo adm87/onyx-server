@@ -1,0 +1,8 @@
+package: gateway
+
+generate:
+  echo-server: true
+  strict-server: true
+  models: true
+
+output: ../internal/gateway/gen/server.gen.go
