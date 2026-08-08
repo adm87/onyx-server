@@ -5,6 +5,8 @@
 !cmd/*
 !internal/
 !internal/*
+!pkg/
+!pkg/*
 !proto/
 !proto/*
 !scripts/

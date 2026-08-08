@@ -2,12 +2,12 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: onyx-postgres
+    env_file:
+      - .env
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
-    env_file:
-      - .env
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
@@ -19,24 +19,30 @@ services:
       retries: 10
 
   auth_migration:
-    image: migrate/migrate:v4.15.2
-    container_name: onyx-migration-auth
-    command: ["-path", "/migrations/auth", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable&search_path=auth,public&x-migrations-table=auth_schema_migrations", "up"]
+    build:
+      context: .
+      dockerfile: ./build/migrations/Dockerfile
+    environment:
+      SCHEMA: auth
+    env_file: [.env]
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./migrations/auth:/migrations/auth
+      - ./migrations/auth:/migrations
 
   users_migration:
-    image: migrate/migrate:v4.15.2
-    container_name: onyx-migration-users
-    command: ["-path", "/migrations/users", "-database", "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable&search_path=users,public&x-migrations-table=users_schema_migrations", "up"]
+    build:
+      context: .
+      dockerfile: ./build/migrations/Dockerfile
+    environment:
+      SCHEMA: users
+    env_file: [.env]
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
-      - ./migrations/users:/migrations/users
+      - ./migrations/users:/migrations
 
   auth-service:
     build:
@@ -49,6 +55,7 @@ services:
       - .env
     environment:
       - LOGGER_PREFIX=auth-service
+      - POSTGRES_SCHEMA=auth
     ports:
       - "${SERVICES_AUTH_GRPC_PORT}:${SERVICES_AUTH_GRPC_PORT}"
     healthcheck:
@@ -73,6 +80,7 @@ services:
       - .env
     environment:
       - LOGGER_PREFIX=user-service
+      - POSTGRES_SCHEMA=users
     ports:
       - "${SERVICES_USER_GRPC_PORT}:${SERVICES_USER_GRPC_PORT}"
     healthcheck:

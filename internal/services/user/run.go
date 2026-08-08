@@ -1,10 +1,13 @@
 package user
 
 import (
+	"context"
 	"fmt"
 	"net"
 
 	"github.com/adm87/onyx-server/internal/config"
+	"github.com/adm87/onyx-server/internal/postgres"
+	pgrepository "github.com/adm87/onyx-server/internal/services/user/internal/repository/postgres"
 	"github.com/adm87/onyx-server/internal/services/user/internal/server"
 	userv1 "github.com/adm87/onyx-server/proto/gen/user/v1"
 	"go.uber.org/zap"
@@ -23,8 +26,19 @@ func Run(cfg *config.Config, log *zap.Logger) error {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	db := postgres.NewDB(&cfg.Postgres, log)
+	if err := db.Connect(ctx); err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+	defer db.Close(ctx)
+
+	userRepo := pgrepository.NewUserRepository(db.SQL())
+
 	grpcServer := grpc.NewServer()
-	userv1.RegisterUserServiceServer(grpcServer, server.New(cfg, log))
+	userv1.RegisterUserServiceServer(grpcServer, server.New(cfg, log, userRepo))
 
 	healthServer := health.NewServer()
 	healthpb.RegisterHealthServer(grpcServer, healthServer)
@@ -38,6 +52,8 @@ func validateConfig(cfg *config.Config) error {
 	if cfg.Services.User.GRPC.Port == "" {
 		return fmt.Errorf("user service grpc port is not set")
 	}
-
+	if cfg.Postgres.Schema == "" {
+		return fmt.Errorf("postgres schema is not set")
+	}
 	return nil
 }

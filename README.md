@@ -1,1 +1,18 @@
 # onyx-server
+## Getting Started
+### Create .env
+```
+LOG_LEVEL=debug
+
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=onyx
+
+GATEWAY_HTTP_PORT=8080
+
+SERVICES_AUTH_GRPC_PORT=50051
+SERVICES_AUTH_GRPC_ADDR=auth-service:50051
+
+SERVICES_USER_GRPC_PORT=50052
+SERVICES_USER_GRPC_ADDR=user-service:50052
+```

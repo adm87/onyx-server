@@ -15,9 +15,14 @@ type LoggerConfig struct {
 }
 
 type PostgresConfig struct {
-	User     string `env:"USER"`
-	Password string `env:"PASSWORD"`
-	DBName   string `env:"DB"`
+	Host      string `env:"HOST"`
+	Port      string `env:"PORT"`
+	User      string `env:"USER"`
+	Password  string `env:"PASSWORD"`
+	DBName    string `env:"DB"`
+	Schema    string `env:"SCHEMA"`
+	OpenConns int    `env:"OPEN_CONNS" envDefault:"25"`
+	IdleConns int    `env:"IDLE_CONNS" envDefault:"25"`
 }
 
 type GatewayConfig struct {

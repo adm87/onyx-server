@@ -1,10 +1,13 @@
 package auth
 
 import (
+	"context"
 	"fmt"
 	"net"
 
 	"github.com/adm87/onyx-server/internal/config"
+	"github.com/adm87/onyx-server/internal/postgres"
+	pgrepository "github.com/adm87/onyx-server/internal/services/auth/internal/repository/postgres"
 	"github.com/adm87/onyx-server/internal/services/auth/internal/server"
 	authv1 "github.com/adm87/onyx-server/proto/gen/auth/v1"
 	"go.uber.org/zap"
@@ -23,8 +26,19 @@ func Run(cfg *config.Config, log *zap.Logger) error {
 		return fmt.Errorf("failed to listen: %w", err)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	db := postgres.NewDB(&cfg.Postgres, log)
+	if err := db.Connect(ctx); err != nil {
+		return fmt.Errorf("failed to connect to database: %w", err)
+	}
+	defer db.Close(ctx)
+
+	identityRepo := pgrepository.NewIdentityRepository(db.SQL())
+
 	grpcServer := grpc.NewServer()
-	authv1.RegisterAuthServiceServer(grpcServer, server.New(cfg, log))
+	authv1.RegisterAuthServiceServer(grpcServer, server.New(cfg, log, identityRepo))
 
 	healthServer := health.NewServer()
 	healthpb.RegisterHealthServer(grpcServer, healthServer)
@@ -38,6 +52,8 @@ func validateConfig(cfg *config.Config) error {
 	if cfg.Services.Auth.GRPC.Port == "" {
 		return fmt.Errorf("auth service grpc port is not set")
 	}
-
+	if cfg.Postgres.Schema == "" {
+		return fmt.Errorf("postgres schema is not set")
+	}
 	return nil
 }

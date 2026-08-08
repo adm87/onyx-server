@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/adm87/onyx-server/internal/config"
-	"github.com/adm87/onyx-server/internal/logging"
 	"github.com/adm87/onyx-server/internal/services/auth"
+	"github.com/adm87/onyx-server/pkg/logging"
 	"go.uber.org/zap"
 )
 
