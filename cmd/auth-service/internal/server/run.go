@@ -34,6 +34,8 @@ func run(cfg *config.Config, log *zap.Logger) error {
 		return err
 	}
 
+	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthSvcRpc(cfg, log))
+
 	select {
 	case <-signals:
 		log.Info("Received shutdown signal, exiting...")
@@ -51,14 +53,9 @@ func run(cfg *config.Config, log *zap.Logger) error {
 
 func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
 	server := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
-
-	authv1.RegisterAuthServiceServer(server.Svr(), v1.NewAuthSvcRpc(cfg, log))
-
 	errCh := make(chan error, 1)
-
 	go func() {
 		errCh <- server.Start()
 	}()
-
 	return server, errCh, nil
 }

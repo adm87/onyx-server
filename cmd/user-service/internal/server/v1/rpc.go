@@ -27,8 +27,8 @@ func NewUserSvcRpc(cfg *config.Config, log *zap.Logger) *UserSvcRpc {
 	}
 }
 
-func (s *UserSvcRpc) GetUser(ctx context.Context, req *userv1.GetUserRequest) (*userv1.GetUserResponse, error) {
+func (s *UserSvcRpc) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
-		g.WithMessage("User v1 GetUser not implemented"),
+		g.WithMessage("CreateUser is not implemented yet"),
 	)
 }

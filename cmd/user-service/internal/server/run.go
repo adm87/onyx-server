@@ -34,6 +34,8 @@ func run(cfg *config.Config, log *zap.Logger) error {
 		return err
 	}
 
+	userv1.RegisterUserServiceServer(grpcSvr.Svr(), v1.NewUserSvcRpc(cfg, log))
+
 	select {
 	case <-signals:
 		log.Info("Received shutdown signal, exiting...")
@@ -51,14 +53,9 @@ func run(cfg *config.Config, log *zap.Logger) error {
 
 func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
 	server := g.NewServer(cfg.User.Svc.Name, &cfg.User.Svc.Grpc, log)
-
-	userv1.RegisterUserServiceServer(server.Svr(), v1.NewUserSvcRpc(cfg, log))
-
 	errCh := make(chan error, 1)
-
 	go func() {
 		errCh <- server.Start()
 	}()
-
 	return server, errCh, nil
 }
