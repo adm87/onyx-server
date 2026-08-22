@@ -1,13 +1,12 @@
 package server
 
 import (
-	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/adm87/onyx-server/pkg/config"
-	h "github.com/adm87/onyx-server/pkg/http"
+	g "github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/logger"
 	"go.uber.org/zap"
 )
@@ -21,14 +20,14 @@ func Run() error {
 	if err != nil {
 		return err
 	}
-	return run(cfg, log.With(zap.String("prefix", cfg.Gateway.Name)))
+	return run(cfg, log.With(zap.String("prefix", cfg.Auth.Svc.Name)))
 }
 
 func run(cfg *config.Config, log *zap.Logger) error {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 
-	httpSvr, httpErrch, err := runGateway(cfg, log)
+	grpcSvr, grpcErrch, err := runGrpcServer(cfg, log)
 	if err != nil {
 		return err
 	}
@@ -37,24 +36,22 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	case <-signals:
 		log.Info("Received shutdown signal, exiting...")
 
-		if err := httpSvr.Shutdown(); err != nil {
-			log.Error("Error shutting down HTTP server", zap.Error(err))
+		if err := grpcSvr.Shutdown(); err != nil {
+			log.Error("Error shutting down gRPC server", zap.Error(err))
 			return err
 		}
 		return nil
 
-	case err := <-httpErrch:
+	case err := <-grpcErrch:
 		return err
 	}
 }
 
-func runGateway(cfg *config.Config, log *zap.Logger) (*h.Server, chan error, error) {
-	mux := http.NewServeMux()
-	httpSvr := h.NewServer(&cfg.Gateway.Http, log, mux)
-
-	httpErrch := make(chan error, 1)
+func runGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
+	server := g.NewServer(&cfg.Auth.Svc.Grpc, log)
+	errCh := make(chan error, 1)
 	go func() {
-		httpErrch <- httpSvr.Start()
+		errCh <- server.Start()
 	}()
-	return httpSvr, httpErrch, nil
+	return server, errCh, nil
 }

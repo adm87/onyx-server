@@ -19,7 +19,7 @@ type Server struct {
 }
 
 func NewServer(cfg *config.HttpConfig, log *zap.Logger, handler http.Handler) *Server {
-	addr := net.JoinHostPort(cfg.Host, strconv.Itoa(cfg.Port))
+	addr := net.JoinHostPort("", strconv.Itoa(cfg.Port))
 	return &Server{
 		cfg: cfg,
 		log: log,
@@ -56,6 +56,6 @@ func (s *Server) Shutdown() error {
 		return err
 	}
 
-	s.log.Info("HTTP server shutdown successful")
+	s.log.Info("HTTP server shutdown successfully")
 	return nil
 }

@@ -1,8 +1,27 @@
 services:
-  gateway:
-    container_name: onyx-gateway
+
+  auth-service:
+    container_name: onyx-${AUTH_SVC_NAME}
     build:
       context: .
-      dockerfile: build/gateway/Dockerfile
+      dockerfile: build/service/Dockerfile
+      args:
+        SERVICE_NAME: ${AUTH_SVC_NAME}
     ports:
-      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
+      - "${AUTH_SVC_GRPC_PORT}:${AUTH_SVC_GRPC_PORT}"
+    env_file:
+      - .env
+
+  gateway:
+    container_name: onyx-${GATEWAY_NAME}
+    build:
+      context: .
+      dockerfile: build/service/Dockerfile
+      args:
+        SERVICE_NAME: ${GATEWAY_NAME}
+    ports:
+      - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
+    env_file:
+      - .env
+    depends_on:
+      - auth-service

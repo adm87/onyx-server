@@ -3,8 +3,9 @@ package config
 import "github.com/caarlos0/env/v6"
 
 type Config struct {
-	Gateway HttpConfig   `envPrefix:"GATEWAY_"`
-	Logger  LoggerConfig `envPrefix:"LOGGER_"`
+	Gateway GatewayConfig `envPrefix:"GATEWAY_"`
+	Logger  LoggerConfig  `envPrefix:"LOGGER_"`
+	Auth    AuthConfig    `envPrefix:"AUTH_"`
 }
 
 type LoggerConfig struct {
@@ -18,6 +19,26 @@ type HttpConfig struct {
 	ReadTimeoutSeconds     int    `env:"READ_TIMEOUT_SECONDS" envDefault:"10"`
 	WriteTimeoutSeconds    int    `env:"WRITE_TIMEOUT_SECONDS" envDefault:"10"`
 	ShutdownTimeoutSeconds int    `env:"SHUTDOWN_TIMEOUT_SECONDS" envDefault:"10"`
+}
+
+type GrpcConfig struct {
+	Host                   string `env:"HOST" envDefault:"0.0.0.0"`
+	Port                   int    `env:"PORT" envDefault:"50051"`
+	ShutdownTimeoutSeconds int    `env:"SHUTDOWN_TIMEOUT_SECONDS" envDefault:"10"`
+}
+
+type GatewayConfig struct {
+	Name string     `env:"NAME" envDefault:"gateway"`
+	Http HttpConfig `envPrefix:"HTTP_"`
+}
+
+type SvcConfig struct {
+	Name string     `env:"NAME" envDefault:""`
+	Grpc GrpcConfig `envPrefix:"GRPC_"`
+}
+
+type AuthConfig struct {
+	Svc SvcConfig `envPrefix:"SVC_"`
 }
 
 func Load() (*Config, error) {
