@@ -65,7 +65,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	}
 }
 
-func createGateway(cfg *config.Config, log *zap.Logger, gw *runtime.ServeMux, clients *svcClients) (*h.Server, chan error, error) {
+func createGateway(cfg *config.Config, log *zap.Logger, gw *runtime.ServeMux, clients svcClients) (*h.Server, chan error, error) {
 	mux := http.NewServeMux()
 
 	mux.Handle("/", gw)

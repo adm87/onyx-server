@@ -16,12 +16,12 @@ const (
 
 type SvcHealthStatus map[string]HealthStatus
 
-func healthzHandler(clients *svcClients, log *zap.Logger) http.HandlerFunc {
+func healthzHandler(clients svcClients, log *zap.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		healthStatus := SvcHealthStatus{}
 		allHealthy := true
 
-		for svcName, client := range *clients {
+		for svcName, client := range clients {
 			if client == nil || client.Conn() == nil {
 				log.Warn("gRPC client is nil or connection is nil", zap.String("service", svcName))
 				healthStatus[svcName] = HealthStatusUnhealthy
