@@ -5,9 +5,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	v1 "github.com/adm87/onyx-server/cmd/auth-service/internal/server/v1"
 	"github.com/adm87/onyx-server/pkg/config"
 	g "github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/logger"
+	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
 	"go.uber.org/zap"
 )
 
@@ -49,9 +51,14 @@ func run(cfg *config.Config, log *zap.Logger) error {
 
 func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
 	server := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
+
+	authv1.RegisterAuthServiceServer(server.Svr(), v1.NewAuthSvcRpc(cfg, log))
+
 	errCh := make(chan error, 1)
+
 	go func() {
 		errCh <- server.Start()
 	}()
+
 	return server, errCh, nil
 }
