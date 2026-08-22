@@ -23,7 +23,7 @@ func NewAuthSvcRpc(cfg *config.Config, log *zap.Logger) *AuthSvcRpc {
 	return &AuthSvcRpc{
 		cfg:  cfg,
 		log:  log,
-		errs: g.NewErrors(authv1.AuthService_ServiceDesc.ServiceName),
+		errs: g.NewErrors("v1.auth.svc"),
 	}
 }
 
