@@ -1,0 +1,15 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "[Onyx Server] Launch Gateway",
+      "type": "go",
+      "request": "launch",
+      "mode": "auto",
+      "program": "${workspaceFolder}/cmd/gateway",
+      "envFile": "${workspaceFolder}/.env",
+      "env": {},
+      "args": []
+    }
+  ]
+}

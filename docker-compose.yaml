@@ -1,0 +1,8 @@
+services:
+  gateway:
+    container_name: onyx-gateway
+    build:
+      context: .
+      dockerfile: build/gateway/Dockerfile
+    ports:
+      - "${GATEWAY_PORT}:${GATEWAY_PORT}"
