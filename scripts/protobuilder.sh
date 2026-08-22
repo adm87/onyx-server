@@ -2,6 +2,8 @@
 set -euo pipefail
 
 OUT_DIR="./pkg/proto/gen"
+
+rm -rf "$OUT_DIR"
 mkdir -p "$OUT_DIR"
 
 mapfile -t PROTO_FILES < <(find ./pkg/proto -name "*.proto" -not -path "./pkg/proto/gen/*")

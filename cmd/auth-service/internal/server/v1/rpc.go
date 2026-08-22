@@ -28,12 +28,14 @@ func NewAuthSvcRpc(cfg *config.Config, log *zap.Logger) *AuthSvcRpc {
 }
 
 func (s *AuthSvcRpc) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
+	s.log.Info("Register called", zap.Any("request", req))
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
 		g.WithMessage("Auth v1 Register not implemented"),
 	)
 }
 
 func (s *AuthSvcRpc) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+	s.log.Info("Login called", zap.Any("request", req))
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
 		g.WithMessage("Auth v1 Login not implemented"),
 	)

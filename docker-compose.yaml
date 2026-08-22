@@ -8,7 +8,7 @@ services:
       args:
         SERVICE_NAME: ${AUTH_SVC_NAME}
     ports:
-      - "${AUTH_SVC_GRPC_PORT}:${AUTH_SVC_GRPC_PORT}"
+      - "50151:${AUTH_SVC_GRPC_PORT}"
     env_file:
       - .env
 
@@ -20,7 +20,7 @@ services:
       args:
         SERVICE_NAME: ${GATEWAY_NAME}
     ports:
-      - "${GATEWAY_HTTP_PORT}:${GATEWAY_HTTP_PORT}"
+      - "8080:${GATEWAY_HTTP_PORT}"
     env_file:
       - .env
     depends_on:
