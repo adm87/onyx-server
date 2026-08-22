@@ -12,6 +12,18 @@ services:
     env_file:
       - .env
 
+  user-service:
+    container_name: onyx-${USER_SVC_NAME}
+    build:
+      context: .
+      dockerfile: build/service/Dockerfile
+      args:
+        SERVICE_NAME: ${USER_SVC_NAME}
+    ports:
+      - "50152:${USER_SVC_GRPC_PORT}"
+    env_file:
+      - .env
+
   gateway:
     container_name: onyx-${GATEWAY_NAME}
     build:
@@ -25,3 +37,4 @@ services:
       - .env
     depends_on:
       - auth-service
+      - user-service

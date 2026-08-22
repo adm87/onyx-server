@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/adm87/onyx-server/cmd/auth-service/internal/server"
+	"github.com/adm87/onyx-server/cmd/user-service/internal/server"
 )
 
 func main() {

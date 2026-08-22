@@ -6,6 +6,7 @@ type Config struct {
 	Gateway GatewayConfig `envPrefix:"GATEWAY_"`
 	Logger  LoggerConfig  `envPrefix:"LOGGER_"`
 	Auth    AuthConfig    `envPrefix:"AUTH_"`
+	User    UserConfig    `envPrefix:"USER_"`
 }
 
 type LoggerConfig struct {
@@ -39,6 +40,10 @@ type SvcConfig struct {
 }
 
 type AuthConfig struct {
+	Svc SvcConfig `envPrefix:"SVC_"`
+}
+
+type UserConfig struct {
 	Svc SvcConfig `envPrefix:"SVC_"`
 }
 
