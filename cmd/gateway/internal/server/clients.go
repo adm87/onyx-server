@@ -7,6 +7,7 @@ import (
 	"github.com/adm87/onyx-server/pkg/config"
 	g "github.com/adm87/onyx-server/pkg/grpc"
 	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
+	userv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/user/v1"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -29,13 +30,23 @@ func createSvcClients(ctx context.Context, cfg *config.Config, log *zap.Logger, 
 		log.Error("Failed to connect to Auth service", zap.Error(err))
 		return nil, err
 	}
-
 	if err := authv1.RegisterAuthServiceHandler(ctx, mux, authClient.Conn()); err != nil {
 		log.Error("Failed to register Auth service handler", zap.Error(err))
 		return nil, err
 	}
 
+	userClient := g.NewClient(cfg.User.Svc.Name, &cfg.User.Svc.Grpc, log)
+	if err := userClient.Connect(grpc.WithTransportCredentials(insecure.NewCredentials())); err != nil {
+		log.Error("Failed to connect to User service", zap.Error(err))
+		return nil, err
+	}
+	if err := userv1.RegisterUserServiceHandler(ctx, mux, userClient.Conn()); err != nil {
+		log.Error("Failed to register User service handler", zap.Error(err))
+		return nil, err
+	}
+
 	return svcClients{
 		cfg.Auth.Svc.Name: authClient,
+		cfg.User.Svc.Name: userClient,
 	}, nil
 }
