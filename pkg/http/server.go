@@ -2,6 +2,7 @@ package http
 
 import (
 	"context"
+	"errors"
 	"net"
 	"net/http"
 	"strconv"
@@ -47,7 +48,11 @@ func (s *Server) Shutdown() error {
 
 	s.log.Info("Shutting down HTTP server")
 	if err := s.server.Shutdown(ctx); err != nil {
-		s.log.Error("Error during HTTP server shutdown", zap.Error(err))
+		if errors.Is(err, context.DeadlineExceeded) {
+			s.log.Error("HTTP server shutdown timed out", zap.Error(err))
+		} else {
+			s.log.Error("Error during HTTP server shutdown", zap.Error(err))
+		}
 		return err
 	}
 
