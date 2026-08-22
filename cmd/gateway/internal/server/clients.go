@@ -24,7 +24,7 @@ func (sc svcClients) Close() error {
 }
 
 func createSvcClients(ctx context.Context, cfg *config.Config, log *zap.Logger, mux *runtime.ServeMux) (*svcClients, error) {
-	authClient := g.NewClient(&cfg.Auth.Svc.Grpc, log)
+	authClient := g.NewClient(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
 	if err := authClient.Connect(grpc.WithTransportCredentials(insecure.NewCredentials())); err != nil {
 		log.Error("Failed to connect to Auth service", zap.Error(err))
 		return nil, err

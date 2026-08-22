@@ -18,12 +18,14 @@ type Client struct {
 	log    *zap.Logger
 	conn   *grpc.ClientConn
 	health healthpb.HealthClient
+	name   string
 }
 
-func NewClient(cfg *config.GrpcConfig, log *zap.Logger) *Client {
+func NewClient(name string, cfg *config.GrpcConfig, log *zap.Logger) *Client {
 	return &Client{
-		cfg: cfg,
-		log: log,
+		cfg:  cfg,
+		log:  log,
+		name: name,
 	}
 }
 
@@ -78,7 +80,7 @@ func (c *Client) IsHealthy(ctx context.Context) (bool, error) {
 		return false, nil
 	}
 
-	resp, err := c.health.Check(ctx, &healthpb.HealthCheckRequest{})
+	resp, err := c.health.Check(ctx, &healthpb.HealthCheckRequest{Service: c.name})
 	if err != nil {
 		c.log.Error("Health check failed", zap.Error(err))
 		return false, err

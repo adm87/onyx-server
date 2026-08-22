@@ -48,7 +48,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 }
 
 func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
-	server := g.NewServer(&cfg.Auth.Svc.Grpc, log)
+	server := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
 	errCh := make(chan error, 1)
 	go func() {
 		errCh <- server.Start()

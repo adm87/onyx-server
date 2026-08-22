@@ -20,12 +20,14 @@ type Server struct {
 	health *health.Server
 }
 
-func NewServer(cfg *config.GrpcConfig, log *zap.Logger) *Server {
+func NewServer(name string, cfg *config.GrpcConfig, log *zap.Logger) *Server {
 	health := health.NewServer()
 	server := grpc.NewServer()
 
 	healthpb.RegisterHealthServer(server, health)
+
 	health.SetServingStatus("", healthpb.HealthCheckResponse_SERVING)
+	health.SetServingStatus(name, healthpb.HealthCheckResponse_SERVING)
 
 	return &Server{
 		cfg:    cfg,
