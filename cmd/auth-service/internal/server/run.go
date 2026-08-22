@@ -27,7 +27,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
 
-	grpcSvr, grpcErrch, err := runGrpcServer(cfg, log)
+	grpcSvr, grpcErrch, err := createGrpcServer(cfg, log)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	}
 }
 
-func runGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
+func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
 	server := g.NewServer(&cfg.Auth.Svc.Grpc, log)
 	errCh := make(chan error, 1)
 	go func() {

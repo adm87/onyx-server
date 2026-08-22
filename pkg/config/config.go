@@ -24,6 +24,7 @@ type HttpConfig struct {
 type GrpcConfig struct {
 	Host                   string `env:"HOST" envDefault:"0.0.0.0"`
 	Port                   int    `env:"PORT" envDefault:"50051"`
+	ConnectTimeoutSeconds  int    `env:"CONNECT_TIMEOUT_SECONDS" envDefault:"5"`
 	ShutdownTimeoutSeconds int    `env:"SHUTDOWN_TIMEOUT_SECONDS" envDefault:"10"`
 }
 
