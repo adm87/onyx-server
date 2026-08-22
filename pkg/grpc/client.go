@@ -10,12 +10,14 @@ import (
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/connectivity"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 )
 
 type Client struct {
-	cfg  *config.GrpcConfig
-	log  *zap.Logger
-	conn *grpc.ClientConn
+	cfg    *config.GrpcConfig
+	log    *zap.Logger
+	conn   *grpc.ClientConn
+	health healthpb.HealthClient
 }
 
 func NewClient(cfg *config.GrpcConfig, log *zap.Logger) *Client {
@@ -57,7 +59,9 @@ func (c *Client) Connect(opts ...grpc.DialOption) error {
 		}
 	}
 
+	c.health = healthpb.NewHealthClient(conn)
 	c.conn = conn
+
 	c.log.Info("Successfully connected to gRPC server", zap.String("address", addr))
 	return nil
 }
@@ -67,4 +71,18 @@ func (c *Client) Close() error {
 		return c.conn.Close()
 	}
 	return nil
+}
+
+func (c *Client) IsHealthy(ctx context.Context) (bool, error) {
+	if c.health == nil {
+		return false, nil
+	}
+
+	resp, err := c.health.Check(ctx, &healthpb.HealthCheckRequest{})
+	if err != nil {
+		c.log.Error("Health check failed", zap.Error(err))
+		return false, err
+	}
+
+	return resp.GetStatus() == healthpb.HealthCheckResponse_SERVING, nil
 }
