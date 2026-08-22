@@ -1,17 +1,13 @@
 package main
 
 import (
-	"strconv"
+	"log"
 
-	"github.com/adm87/onyx-server/pkg/config"
+	"github.com/adm87/onyx-server/cmd/gateway/internal/server"
 )
 
 func main() {
-	cfg, err := config.Load()
-	if err != nil {
-		panic(err)
+	if err := server.Run(); err != nil {
+		log.Fatalf("gateway exited with err: %v", err)
 	}
-
-	addr := cfg.Gateway.Host + ":" + strconv.Itoa(cfg.Gateway.Port)
-	println("Starting gateway server on " + addr)
 }
