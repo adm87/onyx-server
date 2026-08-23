@@ -1,10 +1,6 @@
 package server
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
 	v1 "github.com/adm87/onyx-server/cmd/user-service/internal/server/v1"
 	"github.com/adm87/onyx-server/pkg/config"
 	g "github.com/adm87/onyx-server/pkg/grpc"
@@ -26,36 +22,8 @@ func Run() error {
 }
 
 func run(cfg *config.Config, log *zap.Logger) error {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
-
-	grpcSvr, grpcErrch, err := createGrpcServer(cfg, log)
-	if err != nil {
-		return err
-	}
-
+	grpcSvr := g.NewServer(cfg.User.Svc.Name, &cfg.User.Svc.Grpc, log)
 	userv1.RegisterUserServiceServer(grpcSvr.Svr(), v1.NewUserService(cfg, log))
 
-	select {
-	case <-signals:
-		log.Info("Received shutdown signal, exiting...")
-
-		if err := grpcSvr.Shutdown(); err != nil {
-			log.Error("Error shutting down gRPC server", zap.Error(err))
-			return err
-		}
-		return nil
-
-	case err := <-grpcErrch:
-		return err
-	}
-}
-
-func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
-	server := g.NewServer(cfg.User.Svc.Name, &cfg.User.Svc.Grpc, log)
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- server.Start()
-	}()
-	return server, errCh, nil
+	return g.Run(grpcSvr)
 }

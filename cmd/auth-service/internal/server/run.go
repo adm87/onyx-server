@@ -1,10 +1,8 @@
 package server
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
+	basicpassword "github.com/adm87/onyx-server/cmd/auth-service/internal/infra/providers/basic_password"
+	inmemory "github.com/adm87/onyx-server/cmd/auth-service/internal/infra/repositories/in_memory"
 	v1 "github.com/adm87/onyx-server/cmd/auth-service/internal/server/v1"
 	"github.com/adm87/onyx-server/pkg/config"
 	g "github.com/adm87/onyx-server/pkg/grpc"
@@ -26,36 +24,20 @@ func Run() error {
 }
 
 func run(cfg *config.Config, log *zap.Logger) error {
-	signals := make(chan os.Signal, 1)
-	signal.Notify(signals, syscall.SIGTERM, syscall.SIGINT)
+	// ===============================================================
+	// Compose infrastructure and domain layers
 
-	grpcSvr, grpcErrch, err := createGrpcServer(cfg, log)
-	if err != nil {
-		return err
-	}
+	identityStore := inmemory.NewIdentityStore()
+	identityProvider := basicpassword.NewAuthenticator(identityStore)
 
-	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log))
+	// ===============================================================
+	// Create gRPC server and register services
 
-	select {
-	case <-signals:
-		log.Info("Received shutdown signal, exiting...")
+	grpcSvr := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
+	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log, identityProvider))
 
-		if err := grpcSvr.Shutdown(); err != nil {
-			log.Error("Error shutting down gRPC server", zap.Error(err))
-			return err
-		}
-		return nil
+	// ===============================================================
+	// Run the gRPC server
 
-	case err := <-grpcErrch:
-		return err
-	}
-}
-
-func createGrpcServer(cfg *config.Config, log *zap.Logger) (*g.Server, chan error, error) {
-	server := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
-	errCh := make(chan error, 1)
-	go func() {
-		errCh <- server.Start()
-	}()
-	return server, errCh, nil
+	return g.Run(grpcSvr)
 }

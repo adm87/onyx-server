@@ -3,10 +3,11 @@ package config
 import "github.com/caarlos0/env/v6"
 
 type Config struct {
-	Gateway GatewayConfig `envPrefix:"GATEWAY_"`
-	Logger  LoggerConfig  `envPrefix:"LOGGER_"`
-	Auth    AuthConfig    `envPrefix:"AUTH_"`
-	User    UserConfig    `envPrefix:"USER_"`
+	Gateway  GatewayConfig  `envPrefix:"GATEWAY_"`
+	Logger   LoggerConfig   `envPrefix:"LOGGER_"`
+	Auth     AuthConfig     `envPrefix:"AUTH_"`
+	User     UserConfig     `envPrefix:"USER_"`
+	Postgres PostgresConfig `envPrefix:"POSTGRES_"`
 }
 
 type LoggerConfig struct {
@@ -45,6 +46,18 @@ type AuthConfig struct {
 
 type UserConfig struct {
 	Svc SvcConfig `envPrefix:"SVC_"`
+}
+
+type PostgresConfig struct {
+	Host                   string `env:"HOST" envDefault:"localhost"`
+	Port                   int    `env:"PORT" envDefault:"5432"`
+	User                   string `env:"USER" envDefault:"postgres"`
+	Password               string `env:"PASSWORD" envDefault:"password"`
+	DBName                 string `env:"DB_NAME" envDefault:"onyx"`
+	SSLMode                string `env:"SSL_MODE" envDefault:"disable"`
+	MaxOpenConns           int    `env:"MAX_OPEN_CONNS" envDefault:"25"`
+	MaxIdleConns           int    `env:"MAX_IDLE_CONNS" envDefault:"25"`
+	ConnMaxLifetimeSeconds int    `env:"CONN_MAX_LIFETIME_SECONDS" envDefault:"300"`
 }
 
 func Load() (*Config, error) {
