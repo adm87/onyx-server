@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type AuthSvcRpc struct {
+type AuthService struct {
 	authv1.UnimplementedAuthServiceServer
 
 	cfg  *config.Config
@@ -19,22 +19,22 @@ type AuthSvcRpc struct {
 	errs *g.Errors
 }
 
-func NewAuthSvcRpc(cfg *config.Config, log *zap.Logger) *AuthSvcRpc {
-	return &AuthSvcRpc{
+func NewAuthService(cfg *config.Config, log *zap.Logger) *AuthService {
+	return &AuthService{
 		cfg:  cfg,
 		log:  log,
 		errs: g.NewErrors("v1.auth.svc"),
 	}
 }
 
-func (s *AuthSvcRpc) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
+func (s *AuthService) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
 	s.log.Info("Register called", zap.Any("request", req))
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
 		g.WithMessage("Auth v1 Register not implemented"),
 	)
 }
 
-func (s *AuthSvcRpc) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
+func (s *AuthService) Login(ctx context.Context, req *authv1.LoginRequest) (*authv1.LoginResponse, error) {
 	s.log.Info("Login called", zap.Any("request", req))
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
 		g.WithMessage("Auth v1 Login not implemented"),

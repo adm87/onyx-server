@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/codes"
 )
 
-type UserSvcRpc struct {
+type UserService struct {
 	userv1.UnimplementedUserServiceServer
 
 	cfg  *config.Config
@@ -19,15 +19,15 @@ type UserSvcRpc struct {
 	errs *g.Errors
 }
 
-func NewUserSvcRpc(cfg *config.Config, log *zap.Logger) *UserSvcRpc {
-	return &UserSvcRpc{
+func NewUserService(cfg *config.Config, log *zap.Logger) *UserService {
+	return &UserService{
 		cfg:  cfg,
 		log:  log,
 		errs: g.NewErrors("v1.user.svc"),
 	}
 }
 
-func (s *UserSvcRpc) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
+func (s *UserService) CreateUser(ctx context.Context, req *userv1.CreateUserRequest) (*userv1.CreateUserResponse, error) {
 	return nil, s.errs.New(codes.Unimplemented, reasons.Unimplemented,
 		g.WithMessage("CreateUser is not implemented yet"),
 	)

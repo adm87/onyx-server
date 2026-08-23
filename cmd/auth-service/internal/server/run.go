@@ -34,7 +34,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 		return err
 	}
 
-	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthSvcRpc(cfg, log))
+	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log))
 
 	select {
 	case <-signals:

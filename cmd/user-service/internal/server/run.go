@@ -34,7 +34,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 		return err
 	}
 
-	userv1.RegisterUserServiceServer(grpcSvr.Svr(), v1.NewUserSvcRpc(cfg, log))
+	userv1.RegisterUserServiceServer(grpcSvr.Svr(), v1.NewUserService(cfg, log))
 
 	select {
 	case <-signals:
