@@ -57,7 +57,7 @@ type templateData struct {
 
 var tmpl = template.Must(template.New("swagger-ui").Parse(swaggerUITemplate))
 
-func RegisterSwaggerUI(mux *http.ServeMux) {
+func RegisterSwaggerUI(mux *http.ServeMux) error {
 	var specs []specEntry
 	for name := range openAPISpecs {
 		specs = append(specs, specEntry{Name: name, URL: "/openapi/" + name + ".json"})
@@ -65,7 +65,7 @@ func RegisterSwaggerUI(mux *http.ServeMux) {
 
 	specsJSON, err := json.Marshal(specs)
 	if err != nil {
-		panic(err) // specs is static at startup; this can only fail on a programming error
+		return err
 	}
 
 	data := templateData{SpecsJSON: template.JS(specsJSON)}
@@ -84,4 +84,6 @@ func RegisterSwaggerUI(mux *http.ServeMux) {
 			http.Error(w, "failed to render docs", http.StatusInternalServerError)
 		}
 	})
+
+	return nil
 }
