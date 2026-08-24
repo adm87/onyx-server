@@ -59,6 +59,8 @@ func (s *Server) shutdown() error {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.cfg.ShutdownTimeoutSeconds)*time.Second)
 	defer cancel()
 
+	s.health.Shutdown()
+
 	stopped := make(chan struct{})
 	go func() {
 		s.server.GracefulStop()

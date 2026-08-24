@@ -5,6 +5,8 @@ import (
 	"sync"
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
+	"github.com/adm87/onyx-server/pkg/config"
+	"go.uber.org/zap"
 )
 
 // IdentityStore is an in-memory implementation of the IdentityRepository interface.
@@ -13,12 +15,16 @@ type IdentityStore struct {
 	mu      sync.RWMutex
 	byID    map[string]*domain.Credential
 	byEmail map[string]*domain.Credential
+	cfg     *config.Config
+	log     *zap.Logger
 }
 
-func NewIdentityStore() *IdentityStore {
+func NewIdentityStore(cfg *config.Config, log *zap.Logger) *IdentityStore {
 	return &IdentityStore{
 		byID:    make(map[string]*domain.Credential),
 		byEmail: make(map[string]*domain.Credential),
+		cfg:     cfg,
+		log:     log,
 	}
 }
 

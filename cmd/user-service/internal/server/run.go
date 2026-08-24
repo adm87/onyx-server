@@ -22,8 +22,14 @@ func Run() error {
 }
 
 func run(cfg *config.Config, log *zap.Logger) error {
+	// ===============================================================
+	// Create gRPC server and register services
+
 	grpcSvr := g.NewServer(cfg.User.Svc.Name, &cfg.User.Svc.Grpc, log)
 	userv1.RegisterUserServiceServer(grpcSvr.Svr(), v1.NewUserService(cfg, log))
+
+	// ===============================================================
+	// Run the gRPC server
 
 	return g.Run(grpcSvr)
 }

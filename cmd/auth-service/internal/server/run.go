@@ -27,8 +27,8 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	// ===============================================================
 	// Compose infrastructure and domain layers
 
-	identityStore := inmemory.NewIdentityStore()
-	identityProvider := basicpassword.NewAuthenticator(identityStore)
+	identityStore := inmemory.NewIdentityStore(cfg, log)
+	identityProvider := basicpassword.NewAuthenticator(cfg, log, identityStore)
 
 	// ===============================================================
 	// Create gRPC server and register services

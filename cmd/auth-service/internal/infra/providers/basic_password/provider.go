@@ -4,15 +4,21 @@ import (
 	"context"
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
+	"github.com/adm87/onyx-server/pkg/config"
+	"go.uber.org/zap"
 )
 
 type Authenticator struct {
-	repo domain.IdentityStore
+	cfg   *config.Config
+	log   *zap.Logger
+	store domain.IdentityStore
 }
 
-func NewAuthenticator(repo domain.IdentityStore) *Authenticator {
+func NewAuthenticator(cfg *config.Config, log *zap.Logger, store domain.IdentityStore) *Authenticator {
 	return &Authenticator{
-		repo: repo,
+		cfg:   cfg,
+		log:   log,
+		store: store,
 	}
 }
 
