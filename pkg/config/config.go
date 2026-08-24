@@ -31,8 +31,9 @@ type GrpcConfig struct {
 }
 
 type GatewayConfig struct {
-	Name string     `env:"NAME" envDefault:"gateway"`
-	Http HttpConfig `envPrefix:"HTTP_"`
+	Name            string     `env:"NAME" envDefault:"gateway"`
+	Http            HttpConfig `envPrefix:"HTTP_"`
+	EnableSwaggerUI bool       `env:"ENABLE_SWAGGER_UI" envDefault:"false"`
 }
 
 type SvcConfig struct {

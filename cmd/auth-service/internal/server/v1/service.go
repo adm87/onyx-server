@@ -44,7 +44,7 @@ func (s *AuthService) Register(ctx context.Context, req *authv1.RegisterRequest)
 		)
 	}
 
-	_ = identity // Use the identity as needed
+	_ = identity
 
 	return nil, s.errs.New(codes.Unimplemented, domain.ReasonUnimplemented,
 		g.WithMessage("Auth v1 Register not implemented"),
