@@ -37,9 +37,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	mux.HandleFunc("/healthz", healthzHandler(clients, log))
 
 	if cfg.Gateway.EnableSwaggerUI {
-		if err := openapi.RegisterSwaggerUI(mux); err != nil {
-			log.Error("Failed to register Swagger UI", zap.Error(err))
-		}
+		mux.Handle("/docs", openapi.RegisterSwaggerUI(mux, log))
 	}
 
 	httpServer := h.NewServer(&cfg.Gateway.Http, log, mux)
