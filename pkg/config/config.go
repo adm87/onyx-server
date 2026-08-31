@@ -42,7 +42,8 @@ type SvcConfig struct {
 }
 
 type AuthConfig struct {
-	Svc SvcConfig `envPrefix:"SVC_"`
+	Svc       SvcConfig `envPrefix:"SVC_"`
+	StoreType string    `env:"STORE_TYPE" envDefault:"inmemory"`
 }
 
 type UserConfig struct {
@@ -55,6 +56,7 @@ type PostgresConfig struct {
 	User                   string `env:"USER" envDefault:"postgres"`
 	Password               string `env:"PASSWORD" envDefault:"password"`
 	DBName                 string `env:"DB_NAME" envDefault:"onyx"`
+	Schema                 string `env:"SCHEMA" envDefault:"public"`
 	SSLMode                string `env:"SSL_MODE" envDefault:"disable"`
 	MaxOpenConns           int    `env:"MAX_OPEN_CONNS" envDefault:"25"`
 	MaxIdleConns           int    `env:"MAX_IDLE_CONNS" envDefault:"25"`

@@ -18,34 +18,19 @@ type AuthService struct {
 	log  *zap.Logger
 	errs *g.Errors
 
-	provider domain.IdentityProvider
+	store domain.IdentityStore
 }
 
-func NewAuthService(cfg *config.Config, log *zap.Logger, provider domain.IdentityProvider) *AuthService {
+func NewAuthService(cfg *config.Config, log *zap.Logger, store domain.IdentityStore) *AuthService {
 	return &AuthService{
-		cfg:      cfg,
-		log:      log,
-		errs:     g.NewErrors("v1.auth.svc"),
-		provider: provider,
+		cfg:   cfg,
+		log:   log,
+		errs:  g.NewErrors("v1.auth.svc"),
+		store: store,
 	}
 }
 
 func (s *AuthService) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
-	credentials := domain.Credentials{
-		Email:    req.GetEmail(),
-		Password: req.GetPassword(),
-	}
-
-	identity, err := s.provider.Register(ctx, credentials)
-	if err != nil {
-		s.log.Error("Error registering user", zap.Error(err))
-		return nil, s.errs.New(codes.Internal, domain.ReasonAuthenticationFailed,
-			g.WithMessage(err.Error()),
-		)
-	}
-
-	_ = identity
-
 	return nil, s.errs.New(codes.Unimplemented, domain.ReasonUnimplemented,
 		g.WithMessage("Auth v1 Register not implemented"),
 	)

@@ -1,9 +1,8 @@
 package server
 
 import (
-	basicpassword "github.com/adm87/onyx-server/cmd/auth-service/internal/infra/providers/basic_password"
-	inmemory "github.com/adm87/onyx-server/cmd/auth-service/internal/infra/repositories/in_memory"
 	v1 "github.com/adm87/onyx-server/cmd/auth-service/internal/server/v1"
+	"github.com/adm87/onyx-server/cmd/auth-service/internal/store"
 	"github.com/adm87/onyx-server/pkg/config"
 	g "github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/logger"
@@ -27,14 +26,17 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	// ===============================================================
 	// Compose infrastructure and domain layers
 
-	identityStore := inmemory.NewIdentityStore(cfg, log)
-	identityProvider := basicpassword.NewAuthenticator(cfg, log, identityStore)
+	identityStore, err := store.NewIdentityStore(cfg, log)
+	if err != nil {
+		return err
+	}
+	defer identityStore.Close()
 
 	// ===============================================================
 	// Create gRPC server and register services
 
 	grpcSvr := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
-	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log, identityProvider))
+	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log, identityStore))
 
 	// ===============================================================
 	// Run the gRPC server

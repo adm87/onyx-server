@@ -2,6 +2,22 @@ package domain
 
 import "context"
 
+type StoreType string
+
+const (
+	StoreTypeInMemory StoreType = "inmemory"
+	StoreTypePostgres StoreType = "postgres"
+)
+
+func (s StoreType) IsValid() bool {
+	switch s {
+	case StoreTypeInMemory, StoreTypePostgres:
+		return true
+	default:
+		return false
+	}
+}
+
 // Identity is returned after a successful register or login. Never persisted directly —
 // it carries tokens, which are ephemeral, not part of the stored record.
 type Identity struct {

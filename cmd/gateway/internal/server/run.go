@@ -31,6 +31,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	if err != nil {
 		return err
 	}
+	defer clients.Close()
 
 	mux := http.NewServeMux()
 	mux.Handle("/", gw)
@@ -41,7 +42,5 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	}
 
 	httpServer := h.NewServer(&cfg.Gateway.Http, log, mux)
-	return h.Run(httpServer,
-		h.WithAfterServerShutdownHooks(clients.Close),
-	)
+	return h.Run(httpServer)
 }

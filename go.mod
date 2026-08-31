@@ -5,6 +5,7 @@ go 1.27
 require (
 	github.com/caarlos0/env/v6 v6.10.1
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.30.0
+	github.com/lib/pq v1.12.3
 	go.uber.org/zap v1.28.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20260819154853-08b0e4226688
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260819154853-08b0e4226688
