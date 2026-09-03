@@ -7,6 +7,7 @@ import (
 	g "github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/logger"
 	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
+	"github.com/adm87/onyx-server/pkg/server"
 	"go.uber.org/zap"
 )
 
@@ -45,5 +46,5 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	// ===============================================================
 	// Run the gRPC server
 
-	return g.Run(grpcSvr)
+	return server.Run(grpcSvr, log)
 }

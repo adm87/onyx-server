@@ -41,7 +41,7 @@ func (s *Server) Svr() *grpc.Server {
 	return s.server
 }
 
-func (s *Server) start() error {
+func (s *Server) Start() error {
 	address := net.JoinHostPort("", strconv.Itoa(s.cfg.Port))
 	s.log.Info("Starting gRPC server", zap.String("address", address))
 
@@ -53,7 +53,7 @@ func (s *Server) start() error {
 	return s.server.Serve(lis)
 }
 
-func (s *Server) shutdown() error {
+func (s *Server) Shutdown() error {
 	s.log.Info("Shutting down gRPC server")
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(s.cfg.ShutdownTimeoutSeconds)*time.Second)

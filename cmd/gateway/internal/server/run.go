@@ -8,6 +8,7 @@ import (
 	"github.com/adm87/onyx-server/pkg/config"
 	h "github.com/adm87/onyx-server/pkg/http"
 	"github.com/adm87/onyx-server/pkg/logger"
+	"github.com/adm87/onyx-server/pkg/server"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 )
@@ -42,5 +43,5 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	}
 
 	httpServer := h.NewServer(&cfg.Gateway.Http, log, mux)
-	return h.Run(httpServer)
+	return server.Run(httpServer, log)
 }
