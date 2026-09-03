@@ -30,20 +30,23 @@ func (s StoreType) IsValid() bool {
 	}
 }
 
-// Credential is the stored record — no tokens, has the password hash instead.
-type Credential struct {
+type Identity struct {
 	Subject      string
 	Email        string
 	PasswordHash string
 }
 
 type IdentityStore interface {
-	SaveCredential(ctx context.Context, email string, password string) (*Credential, *grpc.Error)
-	GetCredentialBySubject(ctx context.Context, subject string) (*Credential, *grpc.Error)
-	GetCredentialByEmail(ctx context.Context, email string) (*Credential, *grpc.Error)
+	CreateIdentity(ctx context.Context, email string, password string) (*Identity, error)
+	GetIdentityBySubject(ctx context.Context, subject string) (*Identity, error)
+	GetIdentityByEmail(ctx context.Context, email string) (*Identity, error)
 }
 
-func ValidateCrededntials(email, password string) *grpc.Error {
+type TokenProvider interface {
+	GenerateToken(ctx context.Context, subject string) (string, error)
+}
+
+func ValidateCrededntials(email, password string) error {
 	if email == "" {
 		return &grpc.Error{
 			Code:    codes.InvalidArgument,

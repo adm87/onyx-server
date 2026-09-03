@@ -40,7 +40,7 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	// Create gRPC server and register services
 
 	grpcSvr := g.NewServer(cfg.Auth.Svc.Name, &cfg.Auth.Svc.Grpc, log)
-	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log, identityStore))
+	authv1.RegisterAuthServiceServer(grpcSvr.Svr(), v1.NewAuthService(cfg, log, identityStore, nil))
 
 	// ===============================================================
 	// Run the gRPC server

@@ -5,7 +5,6 @@ import (
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
 	"github.com/adm87/onyx-server/pkg/config"
-	"github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/postgres"
 	"go.uber.org/zap"
 )
@@ -41,14 +40,14 @@ func (s *PostgresIdentityStore) Ping() error {
 	return s.conn.Ping()
 }
 
-func (s *PostgresIdentityStore) SaveCredential(ctx context.Context, email string, password string) (*domain.Credential, *grpc.Error) {
+func (s *PostgresIdentityStore) CreateIdentity(ctx context.Context, email string, password string) (*domain.Identity, error) {
 	return nil, nil
 }
 
-func (s *PostgresIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, *grpc.Error) {
+func (s *PostgresIdentityStore) GetIdentityBySubject(ctx context.Context, subject string) (*domain.Identity, error) {
 	return nil, nil
 }
 
-func (s *PostgresIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, *grpc.Error) {
+func (s *PostgresIdentityStore) GetIdentityByEmail(ctx context.Context, email string) (*domain.Identity, error) {
 	return nil, nil
 }

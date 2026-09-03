@@ -9,7 +9,6 @@ import (
 	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
-	"google.golang.org/grpc/codes"
 )
 
 type AuthService struct {
@@ -19,10 +18,11 @@ type AuthService struct {
 	log  *zap.Logger
 	errs *grpc.ErrorProducer
 
-	store domain.IdentityStore
+	store  domain.IdentityStore
+	tokens domain.TokenProvider
 }
 
-func NewAuthService(cfg *config.Config, log *zap.Logger, store domain.IdentityStore) *AuthService {
+func NewAuthService(cfg *config.Config, log *zap.Logger, store domain.IdentityStore, tokens domain.TokenProvider) *AuthService {
 	return &AuthService{
 		cfg:   cfg,
 		log:   log,
@@ -33,21 +33,18 @@ func NewAuthService(cfg *config.Config, log *zap.Logger, store domain.IdentitySt
 
 func (s *AuthService) Register(ctx context.Context, req *authv1.RegisterRequest) (*authv1.RegisterResponse, error) {
 	email, password := req.GetEmail(), req.GetPassword()
-	if gErr := domain.ValidateCrededntials(email, password); gErr != nil {
-		return nil, s.errs.From(gErr)
+	if err := domain.ValidateCrededntials(email, password); err != nil {
+		return nil, s.errs.From(err)
 	}
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return nil, s.errs.New(
-			grpc.WithErrorCode(codes.Internal),
-			grpc.WithErrorReason(domain.ReasonInternal),
-		)
+		return nil, s.errs.From(err)
 	}
 
-	creds, gErr := s.store.SaveCredential(ctx, email, string(passHash))
-	if gErr != nil {
-		return nil, s.errs.From(gErr)
+	creds, err := s.store.CreateIdentity(ctx, email, string(passHash))
+	if err != nil {
+		return nil, s.errs.From(err)
 	}
 	_ = creds
 	return nil, nil

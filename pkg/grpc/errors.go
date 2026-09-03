@@ -48,18 +48,32 @@ func (p *ErrorProducer) New(opts ...func(*Error)) error {
 	return p.From(e)
 }
 
-func (p *ErrorProducer) From(e *Error) error {
-	info := &errdetails.ErrorInfo{
-		Domain:   p.domain,
-		Reason:   string(e.Reason),
-		Metadata: e.Metadata,
+func (p *ErrorProducer) From(err error) error {
+	gErr, ok := err.(*Error)
+	if !ok {
+		return p.New(
+			WithErrorCode(codes.Internal),
+			WithErrorReason("INTERNAL"),
+			WithErrorMessage(err.Error()),
+			WithError(err),
+		)
 	}
 
-	st, detailErr := status.New(e.Code, e.Message).WithDetails(info)
+	if gErr.Metadata == nil {
+		gErr.Metadata = Metadata{}
+	}
+
+	info := &errdetails.ErrorInfo{
+		Domain:   p.domain,
+		Reason:   string(gErr.Reason),
+		Metadata: gErr.Metadata,
+	}
+
+	st, detailErr := status.New(gErr.Code, gErr.Message).WithDetails(info)
 	if detailErr != nil {
 		return errors.Join(
 			fmt.Errorf("failed to attach error details: %w", detailErr),
-			e.Err,
+			gErr.Err,
 		)
 	}
 
@@ -68,8 +82,8 @@ func (p *ErrorProducer) From(e *Error) error {
 	p.log.Error(
 		"grpc error emitted",
 		zap.Error(statusErr),
-		zap.String("reason", string(e.Reason)),
-		zap.Any("metadata", e.Metadata),
+		zap.String("reason", string(gErr.Reason)),
+		zap.Any("metadata", gErr.Metadata),
 	)
 
 	return statusErr

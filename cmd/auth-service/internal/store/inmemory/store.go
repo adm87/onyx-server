@@ -17,20 +17,20 @@ type InMemoryIdentityStore struct {
 	log *zap.Logger
 
 	mu      sync.RWMutex
-	byID    map[string]*domain.Credential
-	byEmail map[string]*domain.Credential
+	byID    map[string]*domain.Identity
+	byEmail map[string]*domain.Identity
 }
 
 func NewInMemoryIdentityStore(cfg *config.Config, log *zap.Logger) *InMemoryIdentityStore {
 	return &InMemoryIdentityStore{
 		cfg:     cfg,
 		log:     log,
-		byID:    make(map[string]*domain.Credential),
-		byEmail: make(map[string]*domain.Credential),
+		byID:    make(map[string]*domain.Identity),
+		byEmail: make(map[string]*domain.Identity),
 	}
 }
 
-func (s *InMemoryIdentityStore) SaveCredential(ctx context.Context, email string, password string) (*domain.Credential, *grpc.Error) {
+func (s *InMemoryIdentityStore) CreateIdentity(ctx context.Context, email string, password string) (*domain.Identity, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -43,7 +43,7 @@ func (s *InMemoryIdentityStore) SaveCredential(ctx context.Context, email string
 	}
 
 	subject := uuid.New().String()
-	creds := &domain.Credential{
+	creds := &domain.Identity{
 		Subject:      subject,
 		Email:        email,
 		PasswordHash: password,
@@ -55,7 +55,7 @@ func (s *InMemoryIdentityStore) SaveCredential(ctx context.Context, email string
 	return creds, nil
 }
 
-func (s *InMemoryIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, *grpc.Error) {
+func (s *InMemoryIdentityStore) GetIdentityBySubject(ctx context.Context, subject string) (*domain.Identity, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -71,7 +71,7 @@ func (s *InMemoryIdentityStore) GetCredentialBySubject(ctx context.Context, subj
 	return credential, nil
 }
 
-func (s *InMemoryIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, *grpc.Error) {
+func (s *InMemoryIdentityStore) GetIdentityByEmail(ctx context.Context, email string) (*domain.Identity, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
