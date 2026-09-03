@@ -5,9 +5,9 @@ import (
 	"errors"
 
 	"github.com/adm87/onyx-server/pkg/config"
-	g "github.com/adm87/onyx-server/pkg/grpc"
 	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
 	userv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/user/v1"
+	g "github.com/adm87/onyx-server/pkg/server/grpc"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

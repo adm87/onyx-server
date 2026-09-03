@@ -5,8 +5,8 @@ import (
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
 	"github.com/adm87/onyx-server/pkg/config"
-	"github.com/adm87/onyx-server/pkg/grpc"
 	authv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/auth/v1"
+	"github.com/adm87/onyx-server/pkg/server/grpc"
 	"go.uber.org/zap"
 	"golang.org/x/crypto/bcrypt"
 )

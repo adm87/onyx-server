@@ -6,9 +6,9 @@ import (
 
 	"github.com/adm87/onyx-server/cmd/gateway/internal/openapi"
 	"github.com/adm87/onyx-server/pkg/config"
-	h "github.com/adm87/onyx-server/pkg/http"
 	"github.com/adm87/onyx-server/pkg/logger"
 	"github.com/adm87/onyx-server/pkg/server"
+	h "github.com/adm87/onyx-server/pkg/server/http"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"go.uber.org/zap"
 )

@@ -3,10 +3,10 @@ package server
 import (
 	v1 "github.com/adm87/onyx-server/cmd/user-service/internal/server/v1"
 	"github.com/adm87/onyx-server/pkg/config"
-	g "github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/logger"
 	userv1 "github.com/adm87/onyx-server/pkg/proto/gen/grpc/user/v1"
 	"github.com/adm87/onyx-server/pkg/server"
+	g "github.com/adm87/onyx-server/pkg/server/grpc"
 	"go.uber.org/zap"
 )
 

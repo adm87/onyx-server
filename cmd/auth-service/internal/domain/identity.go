@@ -5,7 +5,7 @@ import (
 	"net/mail"
 	"regexp"
 
-	"github.com/adm87/onyx-server/pkg/grpc"
+	"github.com/adm87/onyx-server/pkg/server/grpc"
 	"google.golang.org/grpc/codes"
 )
 

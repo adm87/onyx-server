@@ -1,8 +1,6 @@
 package domain
 
-import (
-	"github.com/adm87/onyx-server/pkg/grpc"
-)
+import "github.com/adm87/onyx-server/pkg/server/grpc"
 
 const (
 	ReasonInternal           grpc.Reason = "INTERNAL"

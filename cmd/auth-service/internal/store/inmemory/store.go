@@ -7,7 +7,7 @@ import (
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
 	"github.com/adm87/onyx-server/pkg/config"
-	"github.com/adm87/onyx-server/pkg/grpc"
+	"github.com/adm87/onyx-server/pkg/server/grpc"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 )
