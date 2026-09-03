@@ -2,47 +2,91 @@ package inmemory
 
 import (
 	"context"
+	"sync"
+	"uuid"
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
 	"github.com/adm87/onyx-server/pkg/config"
+	"github.com/adm87/onyx-server/pkg/grpc"
 	"go.uber.org/zap"
+	"google.golang.org/grpc/codes"
 )
 
 type InMemoryIdentityStore struct {
 	cfg *config.Config
 	log *zap.Logger
+
+	mu      sync.RWMutex
+	byID    map[string]*domain.Credential
+	byEmail map[string]*domain.Credential
 }
 
 func NewInMemoryIdentityStore(cfg *config.Config, log *zap.Logger) *InMemoryIdentityStore {
 	return &InMemoryIdentityStore{
-		cfg: cfg,
-		log: log,
+		cfg:     cfg,
+		log:     log,
+		byID:    make(map[string]*domain.Credential),
+		byEmail: make(map[string]*domain.Credential),
 	}
 }
 
-func (s *InMemoryIdentityStore) Connect() error {
-	// In-memory store doesn't require a connection, so we just return nil
-	return nil
+func (s *InMemoryIdentityStore) SaveCredential(ctx context.Context, email string, password string) (*domain.Credential, *grpc.Error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if _, exists := s.byEmail[email]; exists {
+		return nil, &grpc.Error{
+			Code:    codes.AlreadyExists,
+			Reason:  domain.ReasonEmailUnavailable,
+			Message: "email is already in use",
+		}
+	}
+
+	subject := uuid.New().String()
+	creds := &domain.Credential{
+		Subject:      subject,
+		Email:        email,
+		PasswordHash: password,
+	}
+
+	s.byID[subject] = creds
+	s.byEmail[email] = creds
+
+	return creds, nil
 }
 
-func (s *InMemoryIdentityStore) Close() error {
-	// In-memory store doesn't require closing, so we just return nil
-	return nil
+func (s *InMemoryIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, *grpc.Error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	credential, exists := s.byID[subject]
+	if !exists {
+		return nil, &grpc.Error{
+			Code:    codes.NotFound,
+			Reason:  domain.ReasonSubjectNotFound,
+			Message: "subject not found",
+		}
+	}
+
+	return credential, nil
 }
 
-func (s *InMemoryIdentityStore) Ping() error {
-	// In-memory store doesn't require pinging, so we just return nil
-	return nil
+func (s *InMemoryIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, *grpc.Error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	credential, exists := s.byEmail[email]
+	if !exists {
+		return nil, &grpc.Error{
+			Code:    codes.NotFound,
+			Reason:  domain.ReasonEmailNotFound,
+			Message: "email not found",
+		}
+	}
+
+	return credential, nil
 }
 
-func (s *InMemoryIdentityStore) SaveCredential(ctx context.Context, credential *domain.Credential) error {
-	return nil
-}
-
-func (s *InMemoryIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, error) {
-	return nil, nil
-}
-
-func (s *InMemoryIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, error) {
-	return nil, nil
-}
+func (s *InMemoryIdentityStore) Connect() error { return nil }
+func (s *InMemoryIdentityStore) Close() error   { return nil }
+func (s *InMemoryIdentityStore) Ping() error    { return nil }

@@ -1,73 +1,96 @@
 package grpc
 
 import (
+	"errors"
+	"fmt"
+
+	"go.uber.org/zap"
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type Reason string
-
 type Metadata map[string]string
 
-type opts struct {
-	Message  *string
+type Error struct {
+	Code     codes.Code
+	Reason   Reason
+	Message  string
 	Metadata Metadata
+	Err      error
 }
 
-type ErrOpt func(*opts)
-
-func defaultOpts() *opts {
-	return &opts{}
+func (e *Error) Error() string {
+	return fmt.Sprintf(
+		"grpc error: code=%v reason=%v message=%q metadata=%v underlying=%v",
+		e.Code, e.Reason, e.Message, e.Metadata, e.Err,
+	)
 }
 
-func WithMessage(message string) ErrOpt {
-	return func(o *opts) {
-		o.Message = &message
-	}
-}
-
-func WithMetadata(metadata Metadata) ErrOpt {
-	return func(o *opts) {
-		o.Metadata = metadata
-	}
-}
-
-// Errors is a factory helper for creating structured gRPC errors with a specific domain.
-type Errors struct {
+type ErrorProducer struct {
+	log    *zap.Logger
 	domain string
 }
 
-func NewErrors(domain string) *Errors {
-	return &Errors{
+func NewErrorProducer(domain string, log *zap.Logger) *ErrorProducer {
+	return &ErrorProducer{
+		log:    log,
 		domain: domain,
 	}
 }
 
-func (e *Errors) New(code codes.Code, reason Reason, opts ...ErrOpt) error {
-	options := defaultOpts()
+func (p *ErrorProducer) New(opts ...func(*Error)) error {
+	e := &Error{}
 	for _, opt := range opts {
-		opt(options)
+		opt(e)
 	}
+	return p.From(e)
+}
 
+func (p *ErrorProducer) From(e *Error) error {
 	info := &errdetails.ErrorInfo{
-		Domain: e.domain,
-		Reason: string(reason),
+		Domain:   p.domain,
+		Reason:   string(e.Reason),
+		Metadata: e.Metadata,
 	}
 
-	if len(options.Metadata) > 0 {
-		info.Metadata = options.Metadata
+	st, detailErr := status.New(e.Code, e.Message).WithDetails(info)
+	if detailErr != nil {
+		return errors.Join(
+			fmt.Errorf("failed to attach error details: %w", detailErr),
+			e.Err,
+		)
 	}
 
-	message := string(reason)
-	if options.Message != nil {
-		message = *options.Message
-	}
+	statusErr := st.Err()
 
-	s, err := status.New(code, message).WithDetails(info)
-	if err != nil {
-		return status.Errorf(codes.Internal, "failed to add error details: %v", err)
-	}
+	p.log.Error(
+		"grpc error emitted",
+		zap.Error(statusErr),
+		zap.String("reason", string(e.Reason)),
+		zap.Any("metadata", e.Metadata),
+	)
 
-	return s.Err()
+	return statusErr
+}
+
+func WithErrorCode(code codes.Code) func(*Error) {
+	return func(e *Error) { e.Code = code }
+}
+
+func WithErrorReason(reason Reason) func(*Error) {
+	return func(e *Error) { e.Reason = reason }
+}
+
+func WithErrorMessage(msg string) func(*Error) {
+	return func(e *Error) { e.Message = msg }
+}
+
+func WithErrorMetadata(md Metadata) func(*Error) {
+	return func(e *Error) { e.Metadata = md }
+}
+
+func WithError(err error) func(*Error) {
+	return func(e *Error) { e.Err = err }
 }

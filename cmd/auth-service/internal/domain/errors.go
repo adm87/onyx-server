@@ -1,14 +1,13 @@
 package domain
 
-import "errors"
-
-const (
-	ReasonUnimplemented        = "UNIMPLEMENTED"
-	ReasonRegistrationFailed   = "REGISTRATION_FAILED"
-	ReasonAuthenticationFailed = "AUTHENTICATION_FAILED"
+import (
+	"github.com/adm87/onyx-server/pkg/grpc"
 )
 
-var (
-	ErrEmailTaken         = errors.New("email already taken")
-	ErrCredentialNotFound = errors.New("credential not found")
+const (
+	ReasonInternal           grpc.Reason = "INTERNAL"
+	ReasonInvalidCredentials grpc.Reason = "INVALID_CREDENTIALS"
+	ReasonEmailUnavailable   grpc.Reason = "EMAIL_UNAVAILABLE"
+	ReasonSubjectNotFound    grpc.Reason = "SUBJECT_NOT_FOUND"
+	ReasonEmailNotFound      grpc.Reason = "EMAIL_NOT_FOUND"
 )

@@ -32,6 +32,10 @@ func run(cfg *config.Config, log *zap.Logger) error {
 	}
 	defer identityStore.Close()
 
+	if err := identityStore.Connect(); err != nil {
+		return err
+	}
+
 	// ===============================================================
 	// Create gRPC server and register services
 

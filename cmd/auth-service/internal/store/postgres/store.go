@@ -5,6 +5,7 @@ import (
 
 	"github.com/adm87/onyx-server/cmd/auth-service/internal/domain"
 	"github.com/adm87/onyx-server/pkg/config"
+	"github.com/adm87/onyx-server/pkg/grpc"
 	"github.com/adm87/onyx-server/pkg/postgres"
 	"go.uber.org/zap"
 )
@@ -32,6 +33,7 @@ func (s *PostgresIdentityStore) Connect() error {
 }
 
 func (s *PostgresIdentityStore) Close() error {
+	s.log.Info("Closing Postgres connection")
 	return s.conn.Close()
 }
 
@@ -39,14 +41,14 @@ func (s *PostgresIdentityStore) Ping() error {
 	return s.conn.Ping()
 }
 
-func (s *PostgresIdentityStore) SaveCredential(ctx context.Context, credential *domain.Credential) error {
-	return nil
-}
-
-func (s *PostgresIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, error) {
+func (s *PostgresIdentityStore) SaveCredential(ctx context.Context, email string, password string) (*domain.Credential, *grpc.Error) {
 	return nil, nil
 }
 
-func (s *PostgresIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, error) {
+func (s *PostgresIdentityStore) GetCredentialBySubject(ctx context.Context, subject string) (*domain.Credential, *grpc.Error) {
+	return nil, nil
+}
+
+func (s *PostgresIdentityStore) GetCredentialByEmail(ctx context.Context, email string) (*domain.Credential, *grpc.Error) {
 	return nil, nil
 }
